@@ -191,6 +191,16 @@ class Animap extends MX_Controller
             } else {
                 $reseller_name = $this->common->build_concat_string("first_name,last_name,number,company_name", "accounts", $value['reseller_id']);
             }
+
+            // Resolve Caller ID Group label
+            $group_name_html = '<span class="badge badge-light border text-muted px-2 py-1">' . gettext('None') . '</span>';
+            if (!empty($value['callerid_group_id']) && $value['callerid_group_id'] > 0) {
+                $g_row = $this->db->select('name')->from('callerid_groups')->where('id', $value['callerid_group_id'])->get()->row();
+                if ($g_row) {
+                    $group_name_html = '<a href="' . base_url() . 'callerid_groups/callerid_groups_detail/' . $value['callerid_group_id'] . '" class="badge badge-info px-2 py-1" style="text-decoration:none;"><i class="fa fa-phone-square mr-1"></i>' . htmlspecialchars($g_row->name) . '</a>';
+                }
+            }
+
             if ($account_data['type'] == '-1') {
                 $json_data['rows'][] = array(
                     'cell' => array(
@@ -199,6 +209,7 @@ class Animap extends MX_Controller
                         $edit_permission,
                         $account_name,
                         $reseller_name,
+                        $group_name_html,
                         $this->common->convert_GMT_to('', '', $value['creation_date']),
                         $this->common->convert_GMT_to('', '', $value['last_modified_date']),
                         $this->common->get_status('status', 'ani_map', $value),
@@ -212,6 +223,7 @@ class Animap extends MX_Controller
                         // "<a href='/animap/animap_edit/" . $value['id'] . "' style='cursor:pointer;color:#3b3280' rel='facebox_medium' title='Edit'>" . $value['number'] . "</a>",
                         $edit_permission,
                         $account_name,
+                        $group_name_html,
                         $this->common->convert_GMT_to('', '', $value['creation_date']),
                         $this->common->convert_GMT_to('', '', $value['last_modified_date']),
                         $this->common->get_status('status', 'ani_map', $value),

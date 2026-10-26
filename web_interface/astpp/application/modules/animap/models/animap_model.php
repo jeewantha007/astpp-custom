@@ -70,6 +70,7 @@ class ANIMAP_model extends CI_Model
             'number' => $add_array['number'],
             'reseller_id' => $reseller_id,
             'accountid' => $add_array['accountid'],
+            'callerid_group_id' => isset($add_array['callerid_group_id']) ? intval($add_array['callerid_group_id']) : 0,
             'status' => $add_array['status'],
             'context' => 'default'
         );
@@ -83,6 +84,7 @@ class ANIMAP_model extends CI_Model
             'last_modified_date' => gmdate('Y-m-d H:i:s'),
             'number' => $add_array['number'],
             'accountid' => $add_array['accountid'],
+            'callerid_group_id' => isset($add_array['callerid_group_id']) ? intval($add_array['callerid_group_id']) : 0,
             'status' => $add_array['status'],
             'context' => 'default'
         );

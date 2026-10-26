@@ -32,6 +32,21 @@ class Animap_form extends common
         $this->CI = & get_instance();
     }
 
+    /**
+     * Retrieve active Caller ID Groups as key-value dropdown options
+     */
+    function get_callerid_groups_dropdown()
+    {
+        $groups = array('0' => gettext('None'));
+        $query = $this->CI->db->select('id, name')->from('callerid_groups')->where('status', 0)->order_by('name', 'ASC')->get();
+        if ($query && $query->num_rows() > 0) {
+            foreach ($query->result() as $row) {
+                $groups[$row->id] = $row->name;
+            }
+        }
+        return $groups;
+    }
+
     function get_animap_form_fields($edit_id)
     {
         $id = $edit_id;
@@ -132,6 +147,19 @@ class Animap_form extends common
                     'Please Enter ANI number'
                 ),
                 array(
+                    gettext('Caller ID Group'),
+                    'callerid_group_id',
+                    'SELECT',
+                    '',
+                    '',
+                    'tOOL TIP',
+                    'Please Select Caller ID Group',
+                    '',
+                    '',
+                    '',
+                    'get_callerid_groups_dropdown'
+                ),
+                array(
                     gettext('Status'),
                     'status',
                     'SELECT',
@@ -188,6 +216,19 @@ class Animap_form extends common
                     'trim|required|is_unique[' . $val . ']|numeric|xss_clean',
                     'tOOL TIP',
                     'Please Enter ANI number'
+                ),
+                array(
+                    gettext('Caller ID Group'),
+                    'callerid_group_id',
+                    'SELECT',
+                    '',
+                    '',
+                    'tOOL TIP',
+                    'Please Select Caller ID Group',
+                    '',
+                    '',
+                    '',
+                    'get_callerid_groups_dropdown'
                 ),
                 array(
                     gettext('Status'),
@@ -476,6 +517,17 @@ class Animap_form extends common
                     "center"
                 ),
                 array(
+                    gettext("Caller ID Group"),
+                    "160",
+                    "callerid_group_id",
+                    "",
+                    "",
+                    "",
+                    "",
+                    "false",
+                    "center"
+                ),
+                array(
                     gettext("Created Date"),
                     "200",
                     "creation_date",
@@ -561,6 +613,17 @@ class Animap_form extends common
                     "get_field_name_coma_new",
                     "",
                     "true",
+                    "center"
+                ),
+                array(
+                    gettext("Caller ID Group"),
+                    "160",
+                    "callerid_group_id",
+                    "",
+                    "",
+                    "",
+                    "",
+                    "false",
                     "center"
                 ),
                 array(

@@ -41,8 +41,11 @@ class Callerid_groups extends MX_Controller
         if (is_array($permissioninfo)) {
             if (!isset($permissioninfo['callerid_groups']['callerid_groups_list']['create'])) {
                 $permissioninfo['callerid_groups']['callerid_groups_list']['create'] = 0;
-                $this->session->set_userdata('permissioninfo', $permissioninfo);
             }
+            if (!isset($permissioninfo['callerid_groups']['callerid_groups_list']['delete'])) {
+                $permissioninfo['callerid_groups']['callerid_groups_list']['delete'] = 0;
+            }
+            $this->session->set_userdata('permissioninfo', $permissioninfo);
         }
 
         $this->load->library('callerid_groups_form');
@@ -74,8 +77,24 @@ class Callerid_groups extends MX_Controller
     /**
      * Internal helper: Retrieve mock groups from session or default list
      */
+    /**
+     * Retrieve groups from callerid_groups database table
+     */
     private function _get_mock_groups()
     {
+        $db_groups = $this->db->select('*')->from('callerid_groups')->order_by('id', 'ASC')->get()->result_array();
+        if (!empty($db_groups)) {
+            foreach ($db_groups as &$g) {
+                // Count numbers live from ani_map table where callerid_group_id = g.id
+                $g['numbers_count'] = $this->db->where('callerid_group_id', $g['id'])->count_all_results('ani_map');
+                // Count assigned customers live from accounts table where callerid_group_id = g.id
+                $g['customers_count'] = $this->db->where('callerid_group_id', $g['id'])->count_all_results('accounts');
+                $g['reseller_name'] = ($g['reseller_id'] == 0) ? 'Admin (SuperAdmin)' : 'Reseller';
+            }
+            return $db_groups;
+        }
+
+        // Fallback to session mock if database table is empty
         $groups = $this->session->userdata('mock_callerid_groups');
         if (empty($groups) || !is_array($groups)) {
             $groups = array(
@@ -83,45 +102,12 @@ class Callerid_groups extends MX_Controller
                     'id' => 1,
                     'name' => 'US Outbound Primary Pool',
                     'description' => 'Main rotational Caller ID pool for US outbound accounts',
-                    'numbers_count' => 12,
-                    'customers_count' => 35,
-                    'status' => 0, // 0 = Active
+                    'numbers_count' => 3,
+                    'customers_count' => 3,
+                    'status' => 0,
                     'reseller_name' => 'Admin (SuperAdmin)',
                     'creation_date' => '2026-01-15 10:00:00',
                     'last_modified_date' => '2026-03-10 14:30:00'
-                ),
-                array(
-                    'id' => 2,
-                    'name' => 'UK Support Team Pool',
-                    'description' => 'London & Manchester geographic numbers for customer service',
-                    'numbers_count' => 6,
-                    'customers_count' => 14,
-                    'status' => 0,
-                    'reseller_name' => 'Admin (SuperAdmin)',
-                    'creation_date' => '2026-02-01 11:20:00',
-                    'last_modified_date' => '2026-02-20 16:45:00'
-                ),
-                array(
-                    'id' => 3,
-                    'name' => 'APAC Operations Pool',
-                    'description' => 'Singapore and Sydney localized outbound caller IDs',
-                    'numbers_count' => 4,
-                    'customers_count' => 8,
-                    'status' => 0,
-                    'reseller_name' => 'Admin (SuperAdmin)',
-                    'creation_date' => '2026-02-18 08:30:00',
-                    'last_modified_date' => '2026-03-01 10:15:00'
-                ),
-                array(
-                    'id' => 4,
-                    'name' => 'EU Legacy Testing Pool',
-                    'description' => 'Deprecated test group - scheduled for retirement',
-                    'numbers_count' => 0,
-                    'customers_count' => 0,
-                    'status' => 1, // 1 = Inactive
-                    'reseller_name' => 'Admin (SuperAdmin)',
-                    'creation_date' => '2025-11-10 12:00:00',
-                    'last_modified_date' => '2026-01-05 09:00:00'
                 )
             );
             $this->session->set_userdata('mock_callerid_groups', $groups);
@@ -130,55 +116,155 @@ class Callerid_groups extends MX_Controller
     }
 
     /**
-     * Internal helper: Retrieve mock caller ID numbers for a group
+     * Retrieve caller ID numbers assigned to a specific group from ani_map
      */
     private function _get_mock_numbers($group_id)
     {
-        $all_numbers = array(
-            1 => array(
-                array('id' => 101, 'callerid_number' => '+12025550143', 'callerid_name' => 'Main Office US', 'status' => 0, 'creation_date' => '2026-01-16 09:20:00'),
-                array('id' => 102, 'callerid_number' => '+12025550188', 'callerid_name' => 'Sales US East', 'status' => 0, 'creation_date' => '2026-01-16 09:25:00'),
-                array('id' => 103, 'callerid_number' => '+14155552671', 'callerid_name' => 'San Francisco Tech Support', 'status' => 0, 'creation_date' => '2026-01-20 14:10:00'),
-                array('id' => 104, 'callerid_number' => '+13125557890', 'callerid_name' => 'Chicago Regional Dispatch', 'status' => 0, 'creation_date' => '2026-02-02 11:45:00'),
-                array('id' => 105, 'callerid_number' => '+17025559812', 'callerid_name' => 'West Coast Operations', 'status' => 0, 'creation_date' => '2026-02-15 16:30:00')
-            ),
-            2 => array(
-                array('id' => 201, 'callerid_number' => '+442079460912', 'callerid_name' => 'London Central Desk', 'status' => 0, 'creation_date' => '2026-02-01 10:15:00'),
-                array('id' => 202, 'callerid_number' => '+441614960123', 'callerid_name' => 'Manchester Regional Hub', 'status' => 0, 'creation_date' => '2026-02-03 14:00:00')
-            ),
-            3 => array(
-                array('id' => 301, 'callerid_number' => '+6567123456', 'callerid_name' => 'Singapore Support Hub', 'status' => 0, 'creation_date' => '2026-02-19 08:30:00'),
-                array('id' => 302, 'callerid_number' => '+61291234567', 'callerid_name' => 'Sydney Tech Center', 'status' => 0, 'creation_date' => '2026-02-21 09:00:00')
-            ),
-            4 => array()
-        );
-
-        return $all_numbers[$group_id] ?? array(
-            array('id' => 901, 'callerid_number' => '+18005550199', 'callerid_name' => 'Toll-Free Alternate', 'status' => 0, 'creation_date' => date('Y-m-d H:i:s'))
-        );
+        $query = $this->db->select('a.*, acc.first_name, acc.last_name, acc.number as account_number, acc.company_name')
+            ->from('ani_map a')
+            ->join('accounts acc', 'acc.id = a.accountid', 'left')
+            ->where('a.callerid_group_id', $group_id)
+            ->order_by('a.id', 'ASC')
+            ->get();
+        $list = array();
+        if ($query && $query->num_rows() > 0) {
+            foreach ($query->result_array() as $row) {
+                $account_label = trim(($row['first_name'] ?? '') . ' ' . ($row['last_name'] ?? ''));
+                if (!empty($row['company_name'])) {
+                    $account_label .= ' (' . $row['company_name'] . ')';
+                }
+                $list[] = array(
+                    'id' => $row['id'],
+                    'callerid_number' => $row['number'],
+                    'callerid_name' => !empty($account_label) ? $account_label : 'Account #' . $row['accountid'],
+                    'account_number' => $row['account_number'] ?? $row['accountid'],
+                    'status' => $row['status'],
+                    'creation_date' => $row['creation_date']
+                );
+            }
+        }
+        return $list;
     }
 
     /**
-     * Internal helper: Retrieve mock assigned customers for a group
+     * Retrieve all available Caller IDs from ani_map with assigned group info
+     */
+    private function _get_all_animap_numbers()
+    {
+        $query = $this->db->select('a.*, acc.first_name, acc.last_name, acc.number as account_number, acc.company_name, g.name as assigned_group_name')
+            ->from('ani_map a')
+            ->join('accounts acc', 'acc.id = a.accountid', 'left')
+            ->join('callerid_groups g', 'g.id = a.callerid_group_id', 'left')
+            ->order_by('a.id', 'ASC')
+            ->get();
+        $list = array();
+        if ($query && $query->num_rows() > 0) {
+            foreach ($query->result_array() as $row) {
+                $account_label = trim(($row['first_name'] ?? '') . ' ' . ($row['last_name'] ?? ''));
+                if (!empty($row['company_name'])) {
+                    $account_label .= ' (' . $row['company_name'] . ')';
+                }
+                $list[] = array(
+                    'id' => $row['id'],
+                    'number' => $row['number'],
+                    'account_name' => !empty($account_label) ? $account_label : 'Account #' . $row['accountid'],
+                    'account_number' => $row['account_number'] ?? $row['accountid'],
+                    'assigned_group_id' => $row['callerid_group_id'],
+                    'assigned_group_name' => !empty($row['assigned_group_name']) ? $row['assigned_group_name'] : gettext('None'),
+                    'status' => $row['status'],
+                    'creation_date' => $row['creation_date']
+                );
+            }
+        }
+        return $list;
+    }
+
+    /**
+     * Internal helper: Retrieve all available customer accounts from accounts table
+     */
+    private function _get_all_customers()
+    {
+        $query = $this->db->select('acc.id, acc.number, acc.first_name, acc.last_name, acc.company_name, acc.email, acc.balance, acc.status, acc.callerid_group_id, g.name as assigned_group_name')
+            ->from('accounts acc')
+            ->join('callerid_groups g', 'g.id = acc.callerid_group_id', 'left')
+            ->where('acc.deleted', 0)
+            ->where_in('acc.type', array(0, 1))
+            ->order_by('acc.id', 'ASC')
+            ->get();
+        $list = array();
+        if ($query && $query->num_rows() > 0) {
+            foreach ($query->result_array() as $row) {
+                $name = trim(($row['first_name'] ?? '') . ' ' . ($row['last_name'] ?? ''));
+                if (!empty($row['company_name'])) {
+                    $name .= ' (' . $row['company_name'] . ')';
+                }
+                $list[] = array(
+                    'id' => $row['id'],
+                    'number' => $row['number'],
+                    'name' => !empty($name) ? $name : 'Account #' . $row['number'],
+                    'email' => $row['email'],
+                    'status' => ($row['status'] == 0 ? 'Active' : 'Inactive'),
+                    'balance' => '$' . number_format((float)$row['balance'], 2),
+                    'assigned_group_id' => $row['callerid_group_id'],
+                    'assigned_group_name' => !empty($row['assigned_group_name']) ? $row['assigned_group_name'] : gettext('None')
+                );
+            }
+            return $list;
+        }
+
+        $customers = $this->session->userdata('mock_all_customers');
+        if (empty($customers) || !is_array($customers)) {
+            $customers = array(
+                array('id' => 1, 'number' => '1001', 'name' => 'Acme Corporation', 'email' => 'billing@acme.com', 'status' => 'Active', 'balance' => '$1,425.50', 'assigned_group_id' => 1, 'assigned_group_name' => 'US Outbound Primary Pool'),
+                array('id' => 2, 'number' => '1042', 'name' => 'Global Logistics LLC', 'email' => 'ops@globallogistics.com', 'status' => 'Active', 'balance' => '$850.00', 'assigned_group_id' => 1, 'assigned_group_name' => 'US Outbound Primary Pool'),
+                array('id' => 3, 'number' => '1089', 'name' => 'NextGen Cloud Telecom', 'email' => 'accounts@nextgen.io', 'status' => 'Active', 'balance' => '$3,210.75', 'assigned_group_id' => 1, 'assigned_group_name' => 'US Outbound Primary Pool')
+            );
+            $this->session->set_userdata('mock_all_customers', $customers);
+        }
+        return $customers;
+    }
+
+    /**
+     * Internal helper: Retrieve assigned customers for a specific group from accounts table
      */
     private function _get_mock_customers($group_id)
     {
-        $all_customers = array(
-            1 => array(
-                array('id' => 1, 'number' => '1001', 'name' => 'Acme Corporation', 'email' => 'billing@acme.com', 'status' => 'Active', 'balance' => '$1,425.50'),
-                array('id' => 2, 'number' => '1042', 'name' => 'Global Logistics LLC', 'email' => 'ops@globallogistics.com', 'status' => 'Active', 'balance' => '$850.00'),
-                array('id' => 3, 'number' => '1089', 'name' => 'NextGen Cloud Telecom', 'email' => 'accounts@nextgen.io', 'status' => 'Active', 'balance' => '$3,210.75')
-            ),
-            2 => array(
-                array('id' => 4, 'number' => '1105', 'name' => 'Britannic Systems Ltd', 'email' => 'finance@britannic.co.uk', 'status' => 'Active', 'balance' => '£540.20')
-            ),
-            3 => array(
-                array('id' => 5, 'number' => '1120', 'name' => 'Pacific Traders SG', 'email' => 'contact@pacifictraders.sg', 'status' => 'Active', 'balance' => '$620.00')
-            ),
-            4 => array()
-        );
+        $query = $this->db->select('acc.id, acc.number, acc.first_name, acc.last_name, acc.company_name, acc.email, acc.balance, acc.status, acc.callerid_group_id, g.name as assigned_group_name')
+            ->from('accounts acc')
+            ->join('callerid_groups g', 'g.id = acc.callerid_group_id', 'left')
+            ->where('acc.deleted', 0)
+            ->where('acc.callerid_group_id', $group_id)
+            ->order_by('acc.id', 'ASC')
+            ->get();
+        $list = array();
+        if ($query && $query->num_rows() > 0) {
+            foreach ($query->result_array() as $row) {
+                $name = trim(($row['first_name'] ?? '') . ' ' . ($row['last_name'] ?? ''));
+                if (!empty($row['company_name'])) {
+                    $name .= ' (' . $row['company_name'] . ')';
+                }
+                $list[] = array(
+                    'id' => $row['id'],
+                    'number' => $row['number'],
+                    'name' => !empty($name) ? $name : 'Account #' . $row['number'],
+                    'email' => $row['email'],
+                    'status' => ($row['status'] == 0 ? 'Active' : 'Inactive'),
+                    'balance' => '$' . number_format((float)$row['balance'], 2),
+                    'assigned_group_id' => $row['callerid_group_id'],
+                    'assigned_group_name' => !empty($row['assigned_group_name']) ? $row['assigned_group_name'] : gettext('None')
+                );
+            }
+            return $list;
+        }
 
-        return $all_customers[$group_id] ?? array();
+        $all = $this->_get_all_customers();
+        $assigned = array();
+        foreach ($all as $cust) {
+            if ($cust['assigned_group_id'] == $group_id) {
+                $assigned[] = $cust;
+            }
+        }
+        return $assigned;
     }
 
     /**
@@ -225,29 +311,23 @@ class Callerid_groups extends MX_Controller
             $desc_html = htmlspecialchars($group['description']);
 
             // Caller ID Numbers count badge
-            $numbers_html = '<span class="badge badge-info py-1 px-2" style="font-size:11px;"><i class="fa fa-phone fa-fw"></i> ' . $group['numbers_count'] . ' Numbers</span>';
+            $numbers_html = '<a href="' . base_url() . 'callerid_groups/callerid_groups_manage_numbers/' . $id . '" rel="facebox" class="badge badge-info py-1 px-2" style="font-size:11px; text-decoration:none;" title="' . gettext('Manage Numbers') . '"><i class="fa fa-phone fa-fw"></i> ' . $group['numbers_count'] . ' Numbers</a>';
 
             // Assigned Customers count badge
-            $customers_html = '<span class="badge badge-primary py-1 px-2" style="font-size:11px;"><i class="fa fa-users fa-fw"></i> ' . $group['customers_count'] . ' Customers</span>';
+            $customers_html = '<a href="' . base_url() . 'callerid_groups/callerid_groups_assign_customers/' . $id . '" rel="facebox" class="badge badge-primary py-1 px-2" style="font-size:11px; text-decoration:none;" title="' . gettext('Assign Customers') . '"><i class="fa fa-users fa-fw"></i> ' . $group['customers_count'] . ' Customers</a>';
 
-            // Status toggle indicator (ASTPP native switch styling)
-            if ($group['status'] == 0) {
-                $status_html = '<label class="switch" title="Active">' .
-                    '<input type="checkbox" name="onoffswitch" class="onoffswitch-checkbox" checked disabled>' .
-                    '<span class="slider round"></span></label>';
-            } else {
-                $status_html = '<label class="switch" title="Inactive">' .
-                    '<input type="checkbox" name="onoffswitch" class="onoffswitch-checkbox" disabled>' .
-                    '<span class="slider round"></span></label>';
-            }
+            // Status toggle indicator (Interactive ASTPP switch)
+            $status_html = '<label class="switch" title="' . ($group['status'] == 0 ? gettext('Active - Click to Deactivate') : gettext('Inactive - Click to Activate')) . '">' .
+                '<input type="checkbox" name="onoffswitch" class="onoffswitch-checkbox" id="switch_' . $id . '" onclick="callerid_toggle_status(' . $id . ')" ' . ($group['status'] == 0 ? 'checked' : '') . '>' .
+                '<span class="slider round"></span></label>';
 
             // Row Action buttons
             $actions_html = 
                 '<a href="' . base_url() . 'callerid_groups/callerid_groups_detail/' . $id . '" class="btn btn-outline-primary btn-sm mx-1" title="' . gettext('View Details') . '"><i class="fa fa-eye fa-fw"></i></a>' .
                 '<a href="' . base_url() . 'callerid_groups/callerid_groups_edit/' . $id . '" rel="facebox" class="btn btn-royelblue btn-sm mx-1" title="' . gettext('Edit Group') . '"><i class="fa fa-pencil-square-o fa-fw"></i></a>' .
-                '<a href="javascript:void(0);" onclick="callerid_placeholder(\'Manage Numbers (Screen 3)\');" class="btn btn-outline-info btn-sm mx-1" title="' . gettext('Manage Numbers') . '"><i class="fa fa-phone fa-fw"></i></a>' .
-                '<a href="javascript:void(0);" onclick="callerid_placeholder(\'Assign Customers (Screen 4)\');" class="btn btn-outline-success btn-sm mx-1" title="' . gettext('Assign Customers') . '"><i class="fa fa-users fa-fw"></i></a>' .
-                '<a href="javascript:void(0);" onclick="callerid_placeholder(\'Delete Group\');" class="btn btn-danger btn-sm mx-1" title="' . gettext('Delete Group') . '"><i class="fa fa-trash fa-fw"></i></a>';
+                '<a href="' . base_url() . 'callerid_groups/callerid_groups_manage_numbers/' . $id . '" rel="facebox" class="btn btn-outline-info btn-sm mx-1" title="' . gettext('Manage Numbers') . '"><i class="fa fa-phone fa-fw"></i></a>' .
+                '<a href="' . base_url() . 'callerid_groups/callerid_groups_assign_customers/' . $id . '" rel="facebox" class="btn btn-outline-success btn-sm mx-1" title="' . gettext('Assign Customers') . '"><i class="fa fa-users fa-fw"></i></a>' .
+                '<a href="javascript:void(0);" onclick="callerid_delete_single(' . $id . ', \'' . htmlspecialchars(addslashes($group['name'])) . '\')" class="btn btn-danger btn-sm mx-1" title="' . gettext('Delete Group') . '"><i class="fa fa-trash fa-fw"></i></a>';
 
             $rows[] = array(
                 'id' => $id,
@@ -296,6 +376,78 @@ class Callerid_groups extends MX_Controller
     {
         $this->session->unset_userdata('callerid_groups_search');
         echo '1';
+    }
+
+    /**
+     * Live status toggle handler for Caller ID Groups in database
+     */
+    function callerid_groups_status_toggle($id = '')
+    {
+        $id = intval($id);
+        $row = $this->db->get_where('callerid_groups', array('id' => $id))->row();
+        $new_status = 0;
+        $name = '';
+        if ($row) {
+            $new_status = ($row->status == 0) ? 1 : 0;
+            $name = $row->name;
+            $this->db->where('id', $id)->update('callerid_groups', array(
+                'status' => $new_status,
+                'last_modified_date' => date('Y-m-d H:i:s')
+            ));
+        }
+
+        $status_label = ($new_status == 0) ? gettext('Active') : gettext('Inactive');
+        echo json_encode(array(
+            'status' => $new_status,
+            'message' => sprintf(gettext("Caller ID Group '%s' is now %s."), htmlspecialchars($name), $status_label)
+        ));
+        exit();
+    }
+
+    /**
+     * Single group delete handler
+     */
+    function callerid_groups_delete_single($id = '')
+    {
+        $id = intval($id);
+        $row = $this->db->get_where('callerid_groups', array('id' => $id))->row();
+        $deleted_name = $row ? $row->name : 'Group #' . $id;
+
+        // Delete group from database
+        $this->db->where('id', $id)->delete('callerid_groups');
+
+        // Unlink any ani_map numbers that were in this group
+        $this->db->where('callerid_group_id', $id)->update('ani_map', array('callerid_group_id' => 0));
+
+        // Unlink any accounts that were in this group
+        $this->db->where('callerid_group_id', $id)->update('accounts', array('callerid_group_id' => 0));
+
+        echo json_encode(array(
+            'SUCCESS' => sprintf(gettext("Caller ID Group '%s' deleted successfully!"), htmlspecialchars($deleted_name))
+        ));
+        exit();
+    }
+
+    /**
+     * Bulk group delete handler (compatible with ASTPP native delete_multiple)
+     */
+    function callerid_groups_delete_multiple()
+    {
+        $selected_ids = $this->input->post('selected_ids');
+        if (!empty($selected_ids)) {
+            $clean_ids = str_replace("'", "", $selected_ids);
+            $id_array = array_map('intval', explode(',', $clean_ids));
+
+            if (!empty($id_array)) {
+                $this->db->where_in('id', $id_array)->delete('callerid_groups');
+                $this->db->where_in('callerid_group_id', $id_array)->update('ani_map', array('callerid_group_id' => 0));
+                $this->db->where_in('callerid_group_id', $id_array)->update('accounts', array('callerid_group_id' => 0));
+            }
+            echo 1;
+        } else {
+            echo 0;
+        }
+        exit();
     }
 
     /**
@@ -359,55 +511,214 @@ class Callerid_groups extends MX_Controller
             exit();
         }
 
-        $groups = $this->_get_mock_groups();
-
         if ($id != '') {
-            // Edit existing group
-            $updated_name = $post['name'];
-            foreach ($groups as &$group) {
-                if ($group['id'] == $id) {
-                    $group['name'] = trim($post['name']);
-                    $group['description'] = trim($post['description'] ?? '');
-                    $group['status'] = intval($post['status']);
-                    $group['last_modified_date'] = date('Y-m-d H:i:s');
-                    $updated_name = $group['name'];
-                    break;
-                }
-            }
-            $this->session->set_userdata('mock_callerid_groups', $groups);
+            // Edit existing group in database
+            $this->db->where('id', intval($id))->update('callerid_groups', array(
+                'name' => trim($post['name']),
+                'description' => trim($post['description'] ?? ''),
+                'status' => intval($post['status']),
+                'last_modified_date' => date('Y-m-d H:i:s')
+            ));
 
             echo json_encode(array(
-                'SUCCESS' => sprintf(gettext("Caller ID Group '%s' updated successfully!"), htmlspecialchars($updated_name))
+                'SUCCESS' => sprintf(gettext("Caller ID Group '%s' updated successfully!"), htmlspecialchars($post['name']))
             ));
             exit();
         } else {
-            // Create new group
-            $new_id = 1;
-            foreach ($groups as $g) {
-                if ($g['id'] >= $new_id) {
-                    $new_id = $g['id'] + 1;
-                }
-            }
-
-            $new_group = array(
-                'id' => $new_id,
+            // Create new group in database
+            $this->db->insert('callerid_groups', array(
                 'name' => trim($post['name']),
                 'description' => trim($post['description'] ?? ''),
-                'numbers_count' => 0,
-                'customers_count' => 0,
                 'status' => intval($post['status']),
-                'reseller_name' => 'Admin (SuperAdmin)',
+                'reseller_id' => 0,
                 'creation_date' => date('Y-m-d H:i:s'),
                 'last_modified_date' => date('Y-m-d H:i:s')
-            );
-            $groups[] = $new_group;
-            $this->session->set_userdata('mock_callerid_groups', $groups);
+            ));
 
             echo json_encode(array(
-                'SUCCESS' => sprintf(gettext("Caller ID Group '%s' created successfully!"), htmlspecialchars($new_group['name']))
+                'SUCCESS' => sprintf(gettext("Caller ID Group '%s' created successfully!"), htmlspecialchars($post['name']))
             ));
             exit();
         }
+    }
+
+    /**
+     * Manage Caller ID Numbers Modal View (Screen 3: Assign from ani_map)
+     */
+    function callerid_groups_manage_numbers($group_id = '')
+    {
+        $group_id = intval($group_id);
+        $group = $this->db->get_where('callerid_groups', array('id' => $group_id))->row_array();
+        if (!$group) {
+            $groups = $this->_get_mock_groups();
+            $group = !empty($groups) ? $groups[0] : array('id' => 1, 'name' => 'Default Pool');
+            $group_id = $group['id'];
+        }
+
+        $data['username'] = $this->session->userdata('user_name');
+        $data['page_title'] = gettext('Manage Caller ID Numbers');
+        $data['group'] = $group;
+        $data['available_numbers'] = $this->_get_all_animap_numbers();
+        $data['numbers'] = $this->_get_mock_numbers($group_id);
+
+        $this->load->view('view_callerid_groups_numbers', $data);
+    }
+
+    /**
+     * Save Assigned Caller IDs to Group (persists to ani_map.callerid_group_id)
+     */
+    function callerid_groups_save_assigned_numbers()
+    {
+        $group_id = intval($this->input->post('group_id'));
+        $selected_ids = $this->input->post('animap_ids');
+        if (!is_array($selected_ids)) {
+            $selected_ids = array();
+        }
+
+        $group = $this->db->get_where('callerid_groups', array('id' => $group_id))->row_array();
+        $group_name = $group['name'] ?? 'Group #' . $group_id;
+
+        // 1. Unlink any numbers currently assigned to this group that were deselected
+        $this->db->where('callerid_group_id', $group_id);
+        if (!empty($selected_ids)) {
+            $this->db->where_not_in('id', array_map('intval', $selected_ids));
+        }
+        $this->db->update('ani_map', array('callerid_group_id' => 0, 'last_modified_date' => gmdate('Y-m-d H:i:s')));
+
+        // 2. Link newly selected numbers to this group
+        if (!empty($selected_ids)) {
+            $this->db->where_in('id', array_map('intval', $selected_ids));
+            $this->db->update('ani_map', array('callerid_group_id' => $group_id, 'last_modified_date' => gmdate('Y-m-d H:i:s')));
+        }
+
+        $assigned_count = count($selected_ids);
+        echo json_encode(array(
+            'SUCCESS' => sprintf(gettext("%d Caller ID(s) successfully assigned to group '%s'!"), $assigned_count, htmlspecialchars($group_name))
+        ));
+        exit();
+    }
+
+    /**
+     * Return numbers JSON for a group from ani_map
+     */
+    function callerid_groups_get_numbers_json($group_id = '')
+    {
+        $numbers = $this->_get_mock_numbers(intval($group_id));
+        header('Content-Type: application/json');
+        echo json_encode($numbers);
+        exit();
+    }
+
+    /**
+     * Toggle individual number status in ani_map
+     */
+    function callerid_groups_toggle_number_status()
+    {
+        $number_id = intval($this->input->post('number_id'));
+        $row = $this->db->get_where('ani_map', array('id' => $number_id))->row();
+        if ($row) {
+            $new_status = ($row->status == 0) ? 1 : 0;
+            $this->db->where('id', $number_id)->update('ani_map', array('status' => $new_status, 'last_modified_date' => gmdate('Y-m-d H:i:s')));
+        }
+        echo '1';
+        exit();
+    }
+
+    /**
+     * Unlink Caller ID from group (sets ani_map.callerid_group_id = 0)
+     */
+    function callerid_groups_delete_number()
+    {
+        $group_id = intval($this->input->post('group_id'));
+        $number_id = intval($this->input->post('number_id'));
+
+        $this->db->where('id', $number_id);
+        $this->db->where('callerid_group_id', $group_id);
+        $this->db->update('ani_map', array('callerid_group_id' => 0, 'last_modified_date' => gmdate('Y-m-d H:i:s')));
+
+        echo '1';
+        exit();
+    }
+
+    /**
+     * Assign Customers Modal View (Screen 4)
+     */
+    function callerid_groups_assign_customers($group_id = '')
+    {
+        $groups = $this->_get_mock_groups();
+        $group = null;
+        foreach ($groups as $g) {
+            if ($g['id'] == $group_id) {
+                $group = $g;
+                break;
+            }
+        }
+        if (!$group) {
+            $group = !empty($groups) ? $groups[0] : array('id' => 1, 'name' => 'Default Pool');
+            $group_id = $group['id'];
+        }
+
+        $data['username'] = $this->session->userdata('user_name');
+        $data['page_title'] = gettext('Assign Customers');
+        $data['group'] = $group;
+        $data['available_customers'] = $this->_get_all_customers();
+
+        $this->load->view('view_callerid_groups_assign_customers', $data);
+    }
+
+    /**
+     * Save Customer Assignments Handler (persists directly to accounts.callerid_group_id)
+     */
+    function callerid_groups_save_assigned_customers()
+    {
+        $group_id = intval($this->input->post('group_id'));
+        $selected_ids = $this->input->post('customer_ids');
+        if (!is_array($selected_ids)) {
+            $selected_ids = array();
+        }
+
+        $group = $this->db->get_where('callerid_groups', array('id' => $group_id))->row_array();
+        $group_name = $group['name'] ?? 'Group #' . $group_id;
+
+        // 1. Unlink any accounts currently assigned to this group that were deselected
+        $this->db->where('callerid_group_id', $group_id);
+        if (!empty($selected_ids)) {
+            $this->db->where_not_in('id', array_map('intval', $selected_ids));
+        }
+        $this->db->update('accounts', array('callerid_group_id' => 0));
+
+        // 2. Link newly selected accounts to this group
+        if (!empty($selected_ids)) {
+            $this->db->where_in('id', array_map('intval', $selected_ids));
+            $this->db->update('accounts', array('callerid_group_id' => $group_id));
+        }
+
+        $assigned_count = count($selected_ids);
+        echo json_encode(array(
+            'SUCCESS' => sprintf(gettext("%d customer(s) successfully assigned to Caller ID group '%s'!"), $assigned_count, htmlspecialchars($group_name))
+        ));
+        exit();
+    }
+
+    /**
+     * Unassign a single customer from group (sets accounts.callerid_group_id = 0)
+     */
+    function callerid_groups_unassign_customer()
+    {
+        $group_id = intval($this->input->post('group_id'));
+        $customer_id = intval($this->input->post('customer_id'));
+
+        $customer = $this->db->get_where('accounts', array('id' => $customer_id))->row();
+        $unassigned_name = $customer ? trim($customer->first_name . ' ' . $customer->last_name) : 'Customer #' . $customer_id;
+
+        $this->db->where('id', $customer_id)
+            ->where('callerid_group_id', $group_id)
+            ->update('accounts', array('callerid_group_id' => 0));
+
+        echo json_encode(array(
+            'SUCCESS' => sprintf(gettext("Customer '%s' unassigned from group successfully."), htmlspecialchars($unassigned_name))
+        ));
+        exit();
     }
 
     /**

@@ -23,11 +23,61 @@
             $('#status').val('');
             $('.selectpicker').selectpicker('refresh');
         });
+        // Ensure Facebox binds to dynamically loaded grid rows
+        $(document).ajaxComplete(function() {
+            $('a[rel*=facebox]').facebox();
+        });
     });
 
-    // Prototype placeholder alert for future screens
-    function callerid_placeholder(screen_name) {
-        alert("UI Prototype Note:\n\n'" + screen_name + "' will be implemented in a subsequent phase.\n\nBackend logic and database modifications are intentionally disabled in this Screen 1 prototype.");
+    /**
+     * Interactive status toggle handler
+     */
+    function callerid_toggle_status(group_id) {
+        $.ajax({
+            type: 'POST',
+            url: '<?= base_url() ?>callerid_groups/callerid_groups_status_toggle/' + group_id,
+            dataType: 'json',
+            success: function(response) {
+                $("#toast-container").css("display", "block");
+                $(".toast-message").html(response.message || "<?= gettext('Caller ID group status updated.') ?>");
+                $('.toast-top-right').delay(3000).fadeOut();
+
+                var switchEl = $('#switch_' + group_id);
+                var parentLabel = switchEl.closest('label');
+                if (response.status == 0) {
+                    switchEl.prop('checked', true);
+                    parentLabel.attr('title', '<?= gettext("Active - Click to Deactivate") ?>');
+                } else {
+                    switchEl.prop('checked', false);
+                    parentLabel.attr('title', '<?= gettext("Inactive - Click to Activate") ?>');
+                }
+            },
+            error: function() {
+                alert("<?= gettext('Error updating status. Please try again.') ?>");
+            }
+        });
+    }
+
+    /**
+     * Single group delete handler
+     */
+    function callerid_delete_single(group_id, group_name) {
+        if (confirm("<?= gettext('Are you sure you want to delete Caller ID group') ?> '" + group_name + "'?")) {
+            $.ajax({
+                type: 'POST',
+                url: '<?= base_url() ?>callerid_groups/callerid_groups_delete_single/' + group_id,
+                dataType: 'json',
+                success: function(response) {
+                    $('.flex_grid').flexReload();
+                    $("#toast-container_error").css("display", "block");
+                    $(".toast-message").html(response.SUCCESS || "<?= gettext('Caller ID group deleted successfully.') ?>");
+                    $('.toast-top-right').delay(4000).fadeOut();
+                },
+                error: function() {
+                    alert("<?= gettext('Error deleting group. Please try again.') ?>");
+                }
+            });
+        }
     }
 </script>
 

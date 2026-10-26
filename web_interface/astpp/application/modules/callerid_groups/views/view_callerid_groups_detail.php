@@ -3,18 +3,139 @@
 
 <script type="text/javascript" language="javascript">
     $(document).ready(function() {
-        // Initialize Facebox for popup modals (e.g. Edit Group)
+        // Initialize Facebox for popup modals
         $('a[rel*=facebox]').facebox();
 
-        // Simple sub-tab switcher
+        // Sub-tab switcher
         $('.nav-tabs a').click(function(e) {
             e.preventDefault();
             $(this).tab('show');
         });
     });
 
-    function detail_action_placeholder(feature) {
-        alert("UI Prototype Note:\n\n'" + feature + "' will be fully connected in the upcoming phase.\n\nDatabase and FreeSWITCH operations are safely isolated in this prototype.");
+    /**
+     * Live Status Toggle in Detail View
+     */
+    function detail_toggle_status(group_id) {
+        $.ajax({
+            type: 'POST',
+            url: '<?= base_url() ?>callerid_groups/callerid_groups_status_toggle/' + group_id,
+            dataType: 'json',
+            success: function(response) {
+                $("#toast-container").css("display", "block");
+                $(".toast-message").html(response.message || "<?= gettext('Caller ID group status updated.') ?>");
+                $('.toast-top-right').delay(3000).fadeOut();
+
+                if (response.status == 0) {
+                    $('#detail_status_switch').prop('checked', true);
+                    $('#status_icon_box').css('background', '#e6fffa');
+                    $('#status_icon').removeClass('fa-minus-circle text-danger').addClass('fa-check-circle text-success');
+                    $('#status_badge_container').html('<span class="badge badge-success px-2 py-1"><?= gettext("Active") ?></span>');
+                } else {
+                    $('#detail_status_switch').prop('checked', false);
+                    $('#status_icon_box').css('background', '#fff5f5');
+                    $('#status_icon').removeClass('fa-check-circle text-success').addClass('fa-minus-circle text-danger');
+                    $('#status_badge_container').html('<span class="badge badge-secondary px-2 py-1"><?= gettext("Inactive") ?></span>');
+                }
+            },
+            error: function() {
+                alert("<?= gettext('Error updating status. Please try again.') ?>");
+            }
+        });
+    }
+
+    /**
+     * Delete Group from Detail View
+     */
+    function detail_delete_group(group_id, group_name) {
+        if (confirm("<?= gettext('Are you sure you want to delete Caller ID group') ?> '" + group_name + "'?")) {
+            $.ajax({
+                type: 'POST',
+                url: '<?= base_url() ?>callerid_groups/callerid_groups_delete_single/' + group_id,
+                dataType: 'json',
+                success: function(response) {
+                    window.location.href = '<?= base_url() ?>callerid_groups/callerid_groups_list/';
+                },
+                error: function() {
+                    alert("<?= gettext('Error deleting group. Please try again.') ?>");
+                }
+            });
+        }
+    }
+
+    /**
+     * Toggle individual number status from Detail table
+     */
+    function detail_toggle_number(group_id, number_id) {
+        $.ajax({
+            type: 'POST',
+            url: '<?= base_url() ?>callerid_groups/callerid_groups_toggle_number_status/',
+            data: { group_id: group_id, number_id: number_id },
+            success: function(response) {
+                var badge = $('#num_status_badge_' + number_id);
+                if (badge.hasClass('badge-success')) {
+                    badge.removeClass('badge-success').addClass('badge-secondary').text('<?= gettext("Inactive") ?>');
+                } else {
+                    badge.removeClass('badge-secondary').addClass('badge-success').text('<?= gettext("Active") ?>');
+                }
+                $("#toast-container").css("display", "block");
+                $(".toast-message").html("<?= gettext('Caller ID number status updated.') ?>");
+                $('.toast-top-right').delay(2500).fadeOut();
+            }
+        });
+    }
+
+    /**
+     * Delete individual number from Detail table
+     */
+    function detail_delete_number(group_id, number_id, num_str) {
+        if (confirm("<?= gettext('Are you sure you want to delete number') ?> '" + num_str + "' <?= gettext('from this group?') ?>")) {
+            $.ajax({
+                type: 'POST',
+                url: '<?= base_url() ?>callerid_groups/callerid_groups_delete_number/',
+                data: { group_id: group_id, number_id: number_id },
+                success: function(response) {
+                    $('#detail_num_row_' + number_id).fadeOut(300, function() {
+                        $(this).remove();
+                        var current = parseInt($('#numbers_kpi_count').text()) || 0;
+                        if (current > 0) {
+                            $('#numbers_kpi_count').text(current - 1);
+                            $('#numbers_tab_badge').text(current - 1);
+                        }
+                    });
+                    $("#toast-container_error").css("display", "block");
+                    $(".toast-message").html("Number '" + num_str + "' deleted.");
+                    $('.toast-top-right').delay(2500).fadeOut();
+                }
+            });
+        }
+    }
+
+    /**
+     * Unassign customer from Detail table
+     */
+    function detail_unassign_customer(group_id, customer_id, customer_name) {
+        if (confirm("<?= gettext('Are you sure you want to unassign customer') ?> '" + customer_name + "' <?= gettext('from this Caller ID group?') ?>")) {
+            $.ajax({
+                type: 'POST',
+                url: '<?= base_url() ?>callerid_groups/callerid_groups_unassign_customer/',
+                data: { group_id: group_id, customer_id: customer_id },
+                dataType: 'json',
+                success: function(response) {
+                    $('#detail_cust_row_' + customer_id).fadeOut(300, function() {
+                        $(this).remove();
+                        var current = parseInt($('#customers_kpi_count').text()) || 0;
+                        if (current > 0) {
+                            $('#customers_kpi_count').text(current - 1);
+                            $('#customers_tab_badge').text(current - 1);
+                        }
+                    });
+                    $("#toast-container").css("display", "block");
+                    $(".toast-message").html(response.SUCCESS || "<?= gettext('Customer unassigned successfully.') ?>");
+                    $('.toast-top-right').delay(3000).fadeOut();
+                }
+            });
+        }
     }
 </script>
 
@@ -71,11 +192,14 @@
                 <a href="<?= base_url() ?>callerid_groups/callerid_groups_edit/<?= $group['id'] ?>" rel="facebox" class="btn btn-royelblue btn-sm mr-2">
                     <i class="fa fa-pencil-square-o fa-fw"></i> <?= gettext('Edit Group') ?>
                 </a>
-                <a href="javascript:void(0);" onclick="detail_action_placeholder('Add Caller ID Numbers (Screen 3)');" class="btn btn-outline-info btn-sm mr-2">
+                <a href="<?= base_url() ?>callerid_groups/callerid_groups_manage_numbers/<?= $group['id'] ?>" rel="facebox" class="btn btn-outline-info btn-sm mr-2">
                     <i class="fa fa-phone fa-fw"></i> <?= gettext('Manage Numbers') ?>
                 </a>
-                <a href="javascript:void(0);" onclick="detail_action_placeholder('Assign Customers (Screen 4)');" class="btn btn-outline-success btn-sm">
+                <a href="<?= base_url() ?>callerid_groups/callerid_groups_assign_customers/<?= $group['id'] ?>" rel="facebox" class="btn btn-outline-success btn-sm mr-2">
                     <i class="fa fa-users fa-fw"></i> <?= gettext('Assign Customers') ?>
+                </a>
+                <a href="javascript:void(0);" onclick="detail_delete_group(<?= $group['id'] ?>, '<?= htmlspecialchars(addslashes($group['name'])) ?>')" class="btn btn-outline-danger btn-sm">
+                    <i class="fa fa-trash fa-fw"></i> <?= gettext('Delete Group') ?>
                 </a>
             </div>
         </div>
@@ -86,17 +210,25 @@
 <section class="slice color-three mb-3">
     <div class="w-section inverse p-0">
         <div class="row mx-0">
-            <!-- Metric 1: Status -->
+            <!-- Metric 1: Status (with interactive switch) -->
             <div class="col-md-3 col-sm-6 mb-3">
-                <div class="kpi-card p-3 d-flex align-items-center">
-                    <div class="mr-3" style="width:48px; height:48px; border-radius:50%; background:<?= ($group['status'] == 0) ? '#e6fffa' : '#fff5f5' ?>; display:flex; align-items:center; justify-content:center;">
-                        <i class="fa <?= ($group['status'] == 0) ? 'fa-check-circle text-success' : 'fa-minus-circle text-danger' ?> fa-2x"></i>
+                <div class="kpi-card p-3 d-flex align-items-center justify-content-between">
+                    <div class="d-flex align-items-center">
+                        <div id="status_icon_box" class="mr-3" style="width:48px; height:48px; border-radius:50%; background:<?= ($group['status'] == 0) ? '#e6fffa' : '#fff5f5' ?>; display:flex; align-items:center; justify-content:center;">
+                            <i id="status_icon" class="fa <?= ($group['status'] == 0) ? 'fa-check-circle text-success' : 'fa-minus-circle text-danger' ?> fa-2x"></i>
+                        </div>
+                        <div>
+                            <div class="text-muted" style="font-size:12px; font-weight:600; text-transform:uppercase;"><?= gettext('Pool Status') ?></div>
+                            <div id="status_badge_container" style="font-size:18px; font-weight:700; color:#2d3748;">
+                                <?= ($group['status'] == 0) ? '<span class="badge badge-success px-2 py-1">' . gettext('Active') . '</span>' : '<span class="badge badge-secondary px-2 py-1">' . gettext('Inactive') . '</span>' ?>
+                            </div>
+                        </div>
                     </div>
                     <div>
-                        <div class="text-muted" style="font-size:12px; font-weight:600; text-transform:uppercase;"><?= gettext('Pool Status') ?></div>
-                        <div style="font-size:18px; font-weight:700; color:#2d3748;">
-                            <?= ($group['status'] == 0) ? '<span class="badge badge-success px-2 py-1">' . gettext('Active') . '</span>' : '<span class="badge badge-secondary px-2 py-1">' . gettext('Inactive') . '</span>' ?>
-                        </div>
+                        <label class="switch mb-0" title="<?= ($group['status'] == 0) ? gettext('Active - Click to Deactivate') : gettext('Inactive - Click to Activate') ?>">
+                            <input type="checkbox" id="detail_status_switch" onchange="detail_toggle_status(<?= $group['id'] ?>)" <?= ($group['status'] == 0) ? 'checked' : '' ?>>
+                            <span class="slider round"></span>
+                        </label>
                     </div>
                 </div>
             </div>
@@ -110,7 +242,7 @@
                     <div>
                         <div class="text-muted" style="font-size:12px; font-weight:600; text-transform:uppercase;"><?= gettext('Caller ID Numbers') ?></div>
                         <div style="font-size:22px; font-weight:700; color:#2b6cb0;">
-                            <?= count($numbers) ?> <span style="font-size:13px; font-weight:400;" class="text-muted"><?= gettext('in rotation') ?></span>
+                            <span id="numbers_kpi_count"><?= count($numbers) ?></span> <span style="font-size:13px; font-weight:400;" class="text-muted"><?= gettext('in rotation') ?></span>
                         </div>
                     </div>
                 </div>
@@ -125,7 +257,7 @@
                     <div>
                         <div class="text-muted" style="font-size:12px; font-weight:600; text-transform:uppercase;"><?= gettext('Assigned Customers') ?></div>
                         <div style="font-size:22px; font-weight:700; color:#276749;">
-                            <?= count($customers) ?> <span style="font-size:13px; font-weight:400;" class="text-muted"><?= gettext('accounts') ?></span>
+                            <span id="customers_kpi_count"><?= count($customers) ?></span> <span style="font-size:13px; font-weight:400;" class="text-muted"><?= gettext('accounts') ?></span>
                         </div>
                     </div>
                 </div>
@@ -172,12 +304,12 @@
             <ul class="nav nav-tabs mb-4" id="groupDetailTabs" role="tablist">
                 <li class="nav-item">
                     <a class="nav-link active" id="numbers-tab" data-toggle="tab" href="#numbers-panel" role="tab" aria-controls="numbers" aria-selected="true">
-                        <i class="fa fa-phone fa-fw mr-1"></i> <?= gettext('Assigned Numbers Pool') ?> (<?= count($numbers) ?>)
+                        <i class="fa fa-phone fa-fw mr-1"></i> <?= gettext('Assigned Numbers Pool') ?> (<span id="numbers_tab_badge"><?= count($numbers) ?></span>)
                     </a>
                 </li>
                 <li class="nav-item">
                     <a class="nav-link" id="customers-tab" data-toggle="tab" href="#customers-panel" role="tab" aria-controls="customers" aria-selected="false">
-                        <i class="fa fa-users fa-fw mr-1"></i> <?= gettext('Assigned Customers') ?> (<?= count($customers) ?>)
+                        <i class="fa fa-users fa-fw mr-1"></i> <?= gettext('Assigned Customers') ?> (<span id="customers_tab_badge"><?= count($customers) ?></span>)
                     </a>
                 </li>
                 <li class="nav-item">
@@ -194,9 +326,9 @@
                 <div class="tab-pane fade show active" id="numbers-panel" role="tabpanel" aria-labelledby="numbers-tab">
                     <div class="d-flex justify-content-between align-items-center mb-3">
                         <h5 class="m-0" style="color:#2d3748; font-weight:600;"><?= gettext('Rotational Outbound Caller ID Numbers') ?></h5>
-                        <button type="button" class="btn btn-outline-info btn-sm" onclick="detail_action_placeholder('Add Number to Group (Screen 3)');">
-                            <i class="fa fa-plus-circle fa-fw"></i> <?= gettext('Add Number to Group') ?>
-                        </button>
+                        <a href="<?= base_url() ?>callerid_groups/callerid_groups_manage_numbers/<?= $group['id'] ?>" rel="facebox" class="btn btn-outline-info btn-sm">
+                            <i class="fa fa-plus-circle fa-fw"></i> <?= gettext('Add / Manage Numbers') ?>
+                        </a>
                     </div>
 
                     <?php if (!empty($numbers)): ?>
@@ -214,25 +346,23 @@
                             </thead>
                             <tbody>
                                 <?php $idx = 1; foreach ($numbers as $num): ?>
-                                <tr>
+                                <tr id="detail_num_row_<?= $num['id'] ?>">
                                     <td class="text-muted"><?= $idx++ ?></td>
                                     <td>
                                         <strong style="color:#3b3280; font-size:14px;"><i class="fa fa-phone fa-fw mr-1 text-muted"></i><?= htmlspecialchars($num['callerid_number']) ?></strong>
                                     </td>
                                     <td><?= htmlspecialchars($num['callerid_name']) ?></td>
                                     <td>
-                                        <?php if ($num['status'] == 0): ?>
-                                            <span class="badge badge-success px-2 py-1"><?= gettext('Active') ?></span>
-                                        <?php else: ?>
-                                            <span class="badge badge-secondary px-2 py-1"><?= gettext('Inactive') ?></span>
-                                        <?php endif; ?>
+                                        <span id="num_status_badge_<?= $num['id'] ?>" class="badge badge-<?= ($num['status'] == 0 ? 'success' : 'secondary') ?> px-2 py-1">
+                                            <?= ($num['status'] == 0 ? gettext('Active') : gettext('Inactive')) ?>
+                                        </span>
                                     </td>
                                     <td class="text-muted" style="font-size:13px;"><?= htmlspecialchars($num['creation_date']) ?></td>
                                     <td class="text-right">
-                                        <button class="btn btn-outline-secondary btn-sm" onclick="detail_action_placeholder('Toggle Number Status');" title="Toggle Status">
+                                        <button class="btn btn-outline-secondary btn-sm" onclick="detail_toggle_number(<?= $group['id'] ?>, <?= $num['id'] ?>)" title="<?= gettext('Toggle Status') ?>">
                                             <i class="fa fa-refresh"></i>
                                         </button>
-                                        <button class="btn btn-outline-danger btn-sm ml-1" onclick="detail_action_placeholder('Remove Number from Group');" title="Remove">
+                                        <button class="btn btn-outline-danger btn-sm ml-1" onclick="detail_delete_number(<?= $group['id'] ?>, <?= $num['id'] ?>, '<?= htmlspecialchars(addslashes($num['callerid_number'])) ?>')" title="<?= gettext('Delete Number') ?>">
                                             <i class="fa fa-trash"></i>
                                         </button>
                                     </td>
@@ -245,9 +375,9 @@
                     <div class="alert alert-light text-center py-4 border">
                         <i class="fa fa-phone fa-3x text-muted mb-2"></i>
                         <p class="text-muted mb-2"><?= gettext('No Caller ID numbers have been added to this pool yet.') ?></p>
-                        <button class="btn btn-sm btn-info" onclick="detail_action_placeholder('Add Number to Group (Screen 3)');">
+                        <a href="<?= base_url() ?>callerid_groups/callerid_groups_manage_numbers/<?= $group['id'] ?>" rel="facebox" class="btn btn-sm btn-info">
                             <i class="fa fa-plus-circle"></i> <?= gettext('Add First Caller ID Number') ?>
-                        </button>
+                        </a>
                     </div>
                     <?php endif; ?>
                 </div>
@@ -256,9 +386,9 @@
                 <div class="tab-pane fade" id="customers-panel" role="tabpanel" aria-labelledby="customers-tab">
                     <div class="d-flex justify-content-between align-items-center mb-3">
                         <h5 class="m-0" style="color:#2d3748; font-weight:600;"><?= gettext('Customer Accounts Enforcing this Caller ID Pool') ?></h5>
-                        <button type="button" class="btn btn-outline-success btn-sm" onclick="detail_action_placeholder('Assign Customers (Screen 4)');">
+                        <a href="<?= base_url() ?>callerid_groups/callerid_groups_assign_customers/<?= $group['id'] ?>" rel="facebox" class="btn btn-outline-success btn-sm">
                             <i class="fa fa-user-plus fa-fw"></i> <?= gettext('Assign Customers') ?>
-                        </button>
+                        </a>
                     </div>
 
                     <?php if (!empty($customers)): ?>
@@ -276,7 +406,7 @@
                             </thead>
                             <tbody>
                                 <?php foreach ($customers as $cust): ?>
-                                <tr>
+                                <tr id="detail_cust_row_<?= $cust['id'] ?>">
                                     <td>
                                         <strong style="color:#3b3280;"><i class="fa fa-user fa-fw mr-1 text-muted"></i><?= htmlspecialchars($cust['number']) ?></strong>
                                     </td>
@@ -287,8 +417,8 @@
                                     </td>
                                     <td><strong><?= htmlspecialchars($cust['balance']) ?></strong></td>
                                     <td class="text-right">
-                                        <button class="btn btn-outline-danger btn-sm" onclick="detail_action_placeholder('Unassign Customer from Group');" title="Unassign">
-                                            <i class="fa fa-unlink"></i>
+                                        <button class="btn btn-outline-danger btn-sm" onclick="detail_unassign_customer(<?= $group['id'] ?>, <?= $cust['id'] ?>, '<?= htmlspecialchars(addslashes($cust['name'])) ?>')" title="<?= gettext('Unassign Customer') ?>">
+                                            <i class="fa fa-unlink"></i> <?= gettext('Unassign') ?>
                                         </button>
                                     </td>
                                 </tr>
@@ -300,9 +430,9 @@
                     <div class="alert alert-light text-center py-4 border">
                         <i class="fa fa-users fa-3x text-muted mb-2"></i>
                         <p class="text-muted mb-2"><?= gettext('No customer accounts have been assigned to this group yet.') ?></p>
-                        <button class="btn btn-sm btn-success" onclick="detail_action_placeholder('Assign Customers (Screen 4)');">
+                        <a href="<?= base_url() ?>callerid_groups/callerid_groups_assign_customers/<?= $group['id'] ?>" rel="facebox" class="btn btn-sm btn-success">
                             <i class="fa fa-user-plus"></i> <?= gettext('Assign Customers to this Group') ?>
-                        </button>
+                        </a>
                     </div>
                     <?php endif; ?>
                 </div>

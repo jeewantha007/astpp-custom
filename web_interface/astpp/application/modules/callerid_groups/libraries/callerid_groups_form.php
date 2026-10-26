@@ -116,6 +116,16 @@ class Callerid_groups_form extends common
                 "popup",
                 "",
                 "create"
+            ),
+            array(
+                gettext("Delete"),
+                "btn btn-line-danger",
+                "fa fa-times-circle fa-lg",
+                "button_action",
+                "/callerid_groups/callerid_groups_delete_multiple/",
+                "",
+                "",
+                "delete"
             )
         ));
 

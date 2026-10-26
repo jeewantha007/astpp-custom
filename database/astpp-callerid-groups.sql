@@ -55,3 +55,29 @@ DELIMITER ;
 
 CALL `add_callerid_group_id_to_accounts`();
 DROP PROCEDURE IF EXISTS `add_callerid_group_id_to_accounts`;
+
+-- 4. Idempotently add callerid_group_id to ani_map table
+DROP PROCEDURE IF EXISTS `add_callerid_group_id_to_animap`;
+
+DELIMITER ;;
+CREATE PROCEDURE `add_callerid_group_id_to_animap`()
+BEGIN
+  DECLARE col_count INT DEFAULT 0;
+
+  SELECT COUNT(*) INTO col_count
+  FROM information_schema.columns
+  WHERE table_schema = DATABASE()
+    AND table_name = 'ani_map'
+    AND column_name = 'callerid_group_id';
+
+  IF col_count = 0 THEN
+    ALTER TABLE `ani_map`
+      ADD COLUMN `callerid_group_id` int NOT NULL DEFAULT '0' AFTER `accountid`,
+      ADD INDEX `idx_animap_callerid_group_id` (`callerid_group_id`);
+  END IF;
+END;;
+DELIMITER ;
+
+CALL `add_callerid_group_id_to_animap`();
+DROP PROCEDURE IF EXISTS `add_callerid_group_id_to_animap`;
+
