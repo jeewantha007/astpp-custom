@@ -16,6 +16,7 @@ services:
       # Automatically initializes the schema on first startup:
       - ./database/astpp-6.0.sql:/docker-entrypoint-initdb.d/01_astpp-6.0.sql:ro
       - ./database/astpp-6.0.1.sql:/docker-entrypoint-initdb.d/02_astpp-6.0.1.sql:ro
+      - ./database/astpp-callerid-groups.sql:/docker-entrypoint-initdb.d/03_astpp-callerid-groups.sql:ro
     ports:
       - "3306:3306"
 

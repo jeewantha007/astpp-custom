@@ -266,3 +266,4 @@ ERROR - 2026-10-26 06:05:06 --> Severity: Notice  --> Undefined index: live_stat
 ERROR - 2026-10-26 06:05:06 --> Severity: Warning  --> fsockopen(): unable to connect to 127.0.0.1:8021 (Connection refused) /var/www/html/application/libraries/Freeswitch_lib.php 28
 ERROR - 2026-10-26 06:10:09 --> Severity: Notice  --> Undefined variable: form_search /var/www/html/application/modules/freeswitch/views/view_fs_livecall_report.php 103
 ERROR - 2026-10-26 06:10:48 --> Severity: Notice  --> Undefined variable: form_search /var/www/html/application/modules/freeswitch/views/view_fssipprofile_edit.php 257
+ERROR - 2026-10-26 08:07:28 --> Severity: Notice  --> Undefined variable: form_search /var/www/html/application/modules/freeswitch/views/view_fssipprofile_edit.php 257
