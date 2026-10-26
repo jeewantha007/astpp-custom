@@ -659,42 +659,21 @@ function getOS()
     $os_platform = shell_exec("hostnamectl | grep 'Operating'");
     $array_memory=explode("\n",$os_platform);
     $os_platform =explode(":",$array_memory[0]);
-    if(!empty($os_platform)){
-    return $os_platform[1];
-    }
-    else
-    {
-    $os_platform = '';    
-    return $os_platform;    
-    }
+    return isset($os_platform[1]) ? trim($os_platform[1]) : '';
 }
 function getArchitecture()
 {
     $ar_platform = shell_exec("hostnamectl | grep 'Architecture'");
     $array_memory=explode("\n",$ar_platform);
     $ar_platform =explode(":",$array_memory[0]);
-    if(!empty($ar_platform)){
-    return $ar_platform[1];
-    }
-    else
-    {
-    $ar_platform = '';    
-    return $ar_platform;    
-    }
+    return isset($ar_platform[1]) ? trim($ar_platform[1]) : '';
 }
 function getStatichost()
 {
     $hostname_platform = shell_exec("hostnamectl | grep 'Static hostname'");
     $array_memory=explode("\n",$hostname_platform);
     $hostname_platform =explode(":",$array_memory[0]);
-    if(!empty($hostname_platform)){
-    return $hostname_platform[1];
-    }
-    else
-    {
-    $hostname_platform = '';    
-    return $hostname_platform;    
-    }
+    return isset($hostname_platform[1]) ? trim($hostname_platform[1]) : '';
 }
 function get_kernel_version() {
     $kernel = explode(' ', file_get_contents('/proc/version')); //find by hostnamectl
@@ -765,10 +744,11 @@ function create_formatted_date($startdate,$enddate,$timezone,$timevisibly)
                             <div class="col-md-3 float-right pb-3 pr-md-0 pt-3 pt-md-0 pb-md-0">
                                         <select id="month_year_dropdown" name='year' class="form-control selectpicker m-0" style="z-index:9;">
                                         <?php
+                                            $selected = '';
                                             for ($i =0; $i < 6; $i++) {
-                                                                            echo '<option'.$selected.' value="'.date("m#Y", strtotime( date( 'Y-m-01' )." -$i months")).'">'.date("F Y", strtotime( date( 'Y-m-01' )." -$i months")).'</option>'."\n";
-                                                                        }   
-                                                                    ?>
+                                                echo '<option'.$selected.' value="'.date("m#Y", strtotime( date( 'Y-m-01' )." -$i months")).'">'.date("F Y", strtotime( date( 'Y-m-01' )." -$i months")).'</option>'."\n";
+                                            }   
+                                        ?>
                                         </select>
                                 </div>
                             </div>
@@ -955,7 +935,7 @@ function create_formatted_date($startdate,$enddate,$timezone,$timevisibly)
                                                             echo "<tr>";
                                                             echo "<td>".$this->common->get_field_name_coma_new ('first_name,last_name,number,company_name', 'accounts', $accountinformation ['id'] )."</td>";
                                                             echo "<td>".$this->common->reseller_select_value ('first_name,last_name,number,company_name', 'accounts', $accountinformation ['reseller_id']). "</td>";
-                                                             echo "<td>".$this->common->convert_to_currency($select, $table, $accountinformation['balance'])."</td>";
+                                                             echo "<td>".$this->common->convert_to_currency('', '', $accountinformation['balance'])."</td>";
                                                              // ASTPPCOM-939 Start
                                                              echo "<td>";
                                                     ?>
@@ -1151,11 +1131,11 @@ function create_formatted_date($startdate,$enddate,$timezone,$timevisibly)
                                     if($status == 1)
                                     {
                                     //date info
-                                    $startdate = $row->startDate;
-                                    $enddate = $row->endDate; 
-                                    $timezone = $row->timezone;
-                                    $timevisibly = $row->timevisibly;
-                                    $category = $row->category;                                   
+                                    $startdate = isset($row->startDate) ? $row->startDate : '';
+                                    $enddate = isset($row->endDate) ? $row->endDate : ''; 
+                                    $timezone = isset($row->timezone) ? $row->timezone : '';
+                                    $timevisibly = isset($row->timevisibly) ? $row->timevisibly : '';
+                                    $category = isset($row->category) ? $row->category : '';                                   
 
                                     if($d1 > $d2 ){
                                     ?>
@@ -1354,12 +1334,12 @@ function create_formatted_date($startdate,$enddate,$timezone,$timevisibly)
                                           <?php //ASTPPCOM-1307_gautam_start ?>  
                                           <td scope="col"><?php echo gettext('Swap');?></td>
                                           <?php //ASTPPCOM-1307_gautam_end ?>
-                                          <td scope="col"><?php if($swap_info[0]!=''){ echo $swap_info[0].'MB'; } ?></td>
-                                          <td scope="col"><?php if($swap_info[1]!=''){ echo $swap_info[1].'MB'; } ?></td>
-                                          <td scope="col"><?php if($swap_info[2]!=''){ echo $swap_info[2].'MB'; } ?></td>
-                                          <td scope="col"><?php if($swap_info[3]!=''){ echo $swap_info[3].'MB'; } ?></td>
-                                          <td scope="col"><?php if($swap_info[4]!=''){ echo $swap_info[4].'MB'; } ?></td>
-                                          <td scope="col"><?php if($swap_info[5]!=''){ echo $swap_info[5].'MB'; } ?></td>
+                                          <td scope="col"><?php if(isset($swap_info[0]) && $swap_info[0]!=''){ echo $swap_info[0].'MB'; } ?></td>
+                                          <td scope="col"><?php if(isset($swap_info[1]) && $swap_info[1]!=''){ echo $swap_info[1].'MB'; } ?></td>
+                                          <td scope="col"><?php if(isset($swap_info[2]) && $swap_info[2]!=''){ echo $swap_info[2].'MB'; } ?></td>
+                                          <td scope="col"><?php if(isset($swap_info[3]) && $swap_info[3]!=''){ echo $swap_info[3].'MB'; } ?></td>
+                                          <td scope="col"><?php if(isset($swap_info[4]) && $swap_info[4]!=''){ echo $swap_info[4].'MB'; } ?></td>
+                                          <td scope="col"><?php if(isset($swap_info[5]) && $swap_info[5]!=''){ echo $swap_info[5].'MB'; } ?></td>
                                         </tr>
                                       </tbody>
                                     </table>

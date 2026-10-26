@@ -2767,11 +2767,12 @@ class common {
 		$select_params = explode ( ',', $select );
 		if(isset($select_params[3]) && $select_params[3] != ''){
 			$cnt_str = " $select_params[3],' ','(',$select_params[2],')' ";
+			$select = $select_params[3];
 		}
 		else{
 			$cnt_str = " $select_params[0],' ',$select_params[1],' ','(',$select_params[2],')' ";
+			$select = $select_params[0];
 		}
-		$select = $select_params[3];
 		$drp_array = $this->CI->db_model->getSelect ( $select, $table, $where );
 		$drp_array = $drp_array->result ();
 		if(empty($drp_array[0]->company_name)){
