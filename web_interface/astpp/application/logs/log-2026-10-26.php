@@ -267,3 +267,4 @@ ERROR - 2026-10-26 06:05:06 --> Severity: Warning  --> fsockopen(): unable to co
 ERROR - 2026-10-26 06:10:09 --> Severity: Notice  --> Undefined variable: form_search /var/www/html/application/modules/freeswitch/views/view_fs_livecall_report.php 103
 ERROR - 2026-10-26 06:10:48 --> Severity: Notice  --> Undefined variable: form_search /var/www/html/application/modules/freeswitch/views/view_fssipprofile_edit.php 257
 ERROR - 2026-10-26 08:07:28 --> Severity: Notice  --> Undefined variable: form_search /var/www/html/application/modules/freeswitch/views/view_fssipprofile_edit.php 257
+ERROR - 2026-10-26 09:34:14 --> Severity: Notice  --> Trying to access array offset on value of type bool /var/www/html/application/libraries/Usertracking.php 167
