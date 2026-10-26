@@ -144,6 +144,7 @@ class Form {
 		}
 		$form_contents .= form_open ( $fields_array ['forms'] [0], $fields_array ['forms'] [1] );
 		$form_name=$fields_array ['forms'] [1]['name'];
+		$tooltip_data = array();
 		if(file_exists(FCPATH."application/modules/".$this->CI->router->class.'/tooltip.php')){
 			$file_name=FCPATH."application/modules/".$this->CI->router->class.'/tooltip.php';
 				 include $file_name;
@@ -221,12 +222,13 @@ class Form {
 						}else{
 							$form_names= $form_name."_".$fieldvalue [1];
 						}
+						$tooltip_text = (isset($tooltip_data) && is_array($tooltip_data) && isset($tooltip_data[$form_names])) ? $tooltip_data[$form_names] : '';
 						if (is_array ( $fieldvalue [1] ) || (is_array ( $fieldvalue [2] ) && isset ( $fieldvalue [2] ['hidden'] ))) {
 							$form_contents .= form_label ( gettext ( $fieldvalue [0] ), $fieldvalue [0], array (
 									'class' => 'p-0 pr-1 control-label add_settings',
 									'data-toggle'=>"tooltip",
 									'data-html'=>"true",
-									'data-original-title'=> $tooltip_data[$form_names],
+									'data-original-title'=> $tooltip_text,
 									'data-placement'=>"right"	 
 							) );
 						} else {
@@ -235,7 +237,7 @@ class Form {
 									"for"   => $fieldvalue [0],
 									'data-toggle'=>"tooltip",
 									'data-html'=>"true",
-									'data-original-title'=> $tooltip_data[$form_names],
+									'data-original-title'=> $tooltip_text,
 									'data-placement'=>"right"	
 							) );
 						}
@@ -365,26 +367,26 @@ class Form {
 					} 					
 					else if ($fieldvalue [1] == 'IMAGE') {
 						if (isset ( $this->CI->input->post ))
-							$fieldvalue [2] ['value'] = (! $this->CI->input->post ( $fieldvalue [2] ['name'] )) ? @$fieldvalue [2] ['value'] : $this->CI->input->post ( $fieldvalue [2] ['name'] );
+							$fieldvalue [2] ['value'] = (! $this->CI->input->post ( $fieldvalue [2] ['name'] )) ? (isset($fieldvalue [2] ['value']) ? $fieldvalue [2] ['value'] : '') : $this->CI->input->post ( $fieldvalue [2] ['name'] );
 						
 						else
-							$fieldvalue [2] ['value'] = ($values) ? @$values [$fieldvalue [2] ['name']] : @$fieldvalue [2] ['value'];
+							$fieldvalue [2] ['value'] = ($values) ? (isset($values [$fieldvalue [2] ['name']]) ? $values [$fieldvalue [2] ['name']] : '') : (isset($fieldvalue [2] ['value']) ? $fieldvalue [2] ['value'] : '');
 						$fieldvalue [2] ['style'] = isset ( $fieldvalue [2] ['style'] ) ? $fieldvalue [2] ['style'] : "";
 						$form_contents .= form_image ( $fieldvalue [2], 'readonly', $fieldvalue [2] ['style'] );
-						$form_contents .= @$fieldvalue [6];
+						$form_contents .= isset($fieldvalue [6]) ? $fieldvalue [6] : '';
 						$this->CI->form_validation->set_rules ( $fieldvalue [2] ['name'], $fieldvalue [0], $fieldvalue [3] );
 						$form_contents .= '<div class="tooltips error_div pull-left p-0" id="' . $fieldvalue [2] ['name'] . '_error_div" ><i style="color:#D95C5C; padding-right: 6px; padding-top: 10px;" class="fa fa-exclamation-triangle"></i>';
 						$form_contents .= '<span class="popup_error error  p-0" id="' . $fieldvalue [2] ['name'] . '_error">
                     </span></div>';
 					} else if ($fieldvalue [1] == 'DEL_BUTTON') {
 						if (isset ( $this->CI->input->post ))
-							$fieldvalue [2] ['value'] = (! $this->CI->input->post ( $fieldvalue [2] ['name'] )) ? @$fieldvalue [2] ['value'] : $this->CI->input->post ( $fieldvalue [2] ['name'] );
+							$fieldvalue [2] ['value'] = (! $this->CI->input->post ( $fieldvalue [2] ['name'] )) ? (isset($fieldvalue [2] ['value']) ? $fieldvalue [2] ['value'] : '') : $this->CI->input->post ( $fieldvalue [2] ['name'] );
 						
 						else
-							$fieldvalue [2] ['value'] = ($values) ? @$values [$fieldvalue [2] ['name']] : @$fieldvalue [2] ['value'];
+							$fieldvalue [2] ['value'] = ($values) ? (isset($values [$fieldvalue [2] ['name']]) ? $values [$fieldvalue [2] ['name']] : '') : (isset($fieldvalue [2] ['value']) ? $fieldvalue [2] ['value'] : '');
 						$fieldvalue [2] ['style'] = isset ( $fieldvalue [2] ['style'] ) ? $fieldvalue [2] ['style'] : "";
 						$form_contents .= form_img_delete ( $fieldvalue [2], 'readonly', $fieldvalue [2] ['style'] );
-						$form_contents .= @$fieldvalue [6];
+						$form_contents .= isset($fieldvalue [6]) ? $fieldvalue [6] : '';
 						$this->CI->form_validation->set_rules ( $fieldvalue [2] ['name'], $fieldvalue [0], $fieldvalue [3] );
 						$form_contents .= '<div class="tooltips error_div pull-left p-0" id="' . $fieldvalue [2] ['name'] . '_error_div" ><i style="color:#D95C5C; padding-right: 6px; padding-top: 10px;" class="fa fa-exclamation-triangle"></i>';
 						$form_contents .= '<span class="popup_error error  p-0" id="' . $fieldvalue [2] ['name'] . '_error">
@@ -392,9 +394,9 @@ class Form {
 					} 
 					else if ($fieldvalue [1] == 'PASSWORD') {
 						if (isset ( $this->CI->input->post ))
-							$fieldvalue [2] ['value'] = (! $this->CI->input->post ( $fieldvalue [2] ['name'] )) ? @$fieldvalue [2] ['value'] : $this->CI->input->post ( $fieldvalue [2] ['name'] );
+							$fieldvalue [2] ['value'] = (! $this->CI->input->post ( $fieldvalue [2] ['name'] )) ? (isset($fieldvalue [2] ['value']) ? $fieldvalue [2] ['value'] : '') : $this->CI->input->post ( $fieldvalue [2] ['name'] );
 						else
-							$fieldvalue [2] ['value'] = ($values) ? @$values [$fieldvalue [2] ['name']] : @$fieldvalue [2] ['value'];
+							$fieldvalue [2] ['value'] = ($values) ? (isset($values [$fieldvalue [2] ['name']]) ? $values [$fieldvalue [2] ['name']] : '') : (isset($fieldvalue [2] ['value']) ? $fieldvalue [2] ['value'] : '');
 						$form_contents .= form_password ( $fieldvalue [2] );
 						$this->CI->form_validation->set_rules ( $fieldvalue [2] ['name'], $fieldvalue [0], $fieldvalue [3] );
 						$form_contents .= '<div class="tooltips error_div pull-left p-0" id="' . $fieldvalue [2] ['name'] . '_error_div" ><i style="color:#D95C5C; padding-right: 6px; padding-top: 10px;" class="fa fa-exclamation-triangle"></i>';
@@ -432,7 +434,7 @@ class Form {
 						if (isset ( $this->CI->input->post ))
 							$fieldvalue [2] ['value'] = (! $this->CI->input->post ( $fieldvalue [2] ['name'] )) ? @$fieldvalue [2] ['value'] : $this->CI->input->post ( $fieldvalue [2] ['name'] );
 						else
-							$fieldvalue [2] ['value'] = ($values) ? $values [$fieldvalue [2] ['name']] : @$fieldvalue [2] ['value'];
+							$fieldvalue [2] ['value'] = ($values) ? (isset($values [$fieldvalue [2] ['name']]) ? $values [$fieldvalue [2] ['name']] : '') : (isset($fieldvalue [2] ['value']) ? $fieldvalue [2] ['value'] : '');
 						$form_contents .= form_textarea ( $fieldvalue [2] );
 					} else if ($fieldvalue [2] == 'RADIO') {
 						

@@ -118,8 +118,8 @@ class Systems extends MX_Controller
         $data['details'] = $this->system_model->get_subcategory_menu($group_title);
 
         $add_array = $this->input->post();
-        if(isset($_FILES) && $_FILES != ''){
-            if($add_array['file_type'] == 0){
+        if(!empty($_FILES) && isset($_FILES['calling_cards_welcome_file']) && !empty($_FILES['calling_cards_welcome_file']['name'])){
+            if(isset($add_array['file_type']) && $add_array['file_type'] == 0){
                 $filename=$_FILES;
                 $file = $filename['calling_cards_welcome_file']['type'];
                 $actual_file_name=$filename['calling_cards_welcome_file']['name'];
@@ -133,9 +133,8 @@ class Systems extends MX_Controller
                 $uploadedFile1 = $filename['calling_cards_welcome_file']['tmp_name'];
                 $dir_path=  getcwd()."/upload/";
                 $file_name= $filename['calling_cards_welcome_file']['name'];
-                $start_file.'_'.$date.'.'.$path_parts['extension'];
                 $path =$dir_path.$file_name;
-                if(file_exists(getcwd().'/upload/' . $filename)){
+                if(file_exists($path)){
                     $add_array['calling_cards_welcome_file'] = $file_name;
                 }
                 else{
@@ -145,7 +144,7 @@ class Systems extends MX_Controller
                 }
             }
         }
-        if (! empty($add_array)) {
+        if (! empty($add_array) && is_array($add_array)) {
             if(isset($add_array['decimal_points'])){
                 if( $add_array['decimal_points'] < 0 || is_numeric($add_array['decimal_points'] ) == ''){
                     $add_array['decimal_points'] = '2';
@@ -155,8 +154,8 @@ class Systems extends MX_Controller
                     $add_array['decimal_points'] = '5';
                 }
             }
-            if ($add_array['tax_type'] != '') {
-                $selected_tax = implode(",", $add_array['tax_type']);
+            if (isset($add_array['tax_type']) && $add_array['tax_type'] != '') {
+                $selected_tax = is_array($add_array['tax_type']) ? implode(",", $add_array['tax_type']) : $add_array['tax_type'];
                 $add_array['tax_type'] = $selected_tax;
                 if ($add_array['tax_type'] != '0') {
                     $add_array['tax_type'] = str_replace('0,', '', $add_array['tax_type']);

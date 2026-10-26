@@ -190,3 +190,77 @@ ERROR - 2026-10-26 04:45:54 --> Severity: Notice  --> Undefined offset: 3 /var/w
 ERROR - 2026-10-26 04:45:54 --> Severity: Warning  --> Invalid argument supplied for foreach() /var/www/html/system/database/DB_active_rec.php 84
 ERROR - 2026-10-26 04:45:54 --> Severity: Notice  --> Undefined offset: 3 /var/www/html/application/libraries/astpp/Common.php 2774
 ERROR - 2026-10-26 04:45:54 --> Severity: Warning  --> Invalid argument supplied for foreach() /var/www/html/system/database/DB_active_rec.php 84
+ERROR - 2026-10-26 05:15:20 --> Severity: Notice  --> Undefined index: invoice_conf_form_image /var/www/html/application/libraries/astpp/Form.php 238
+ERROR - 2026-10-26 05:15:20 --> Severity: Notice  --> Undefined index: image /var/www/html/application/libraries/astpp/Form.php 371
+ERROR - 2026-10-26 05:15:20 --> Severity: Notice  --> Undefined offset: 6 /var/www/html/application/libraries/astpp/Form.php 374
+ERROR - 2026-10-26 05:15:20 --> Severity: Notice  --> Undefined index: invoice_conf_form_image /var/www/html/application/libraries/astpp/Form.php 238
+ERROR - 2026-10-26 05:15:20 --> Severity: Notice  --> Undefined index: image /var/www/html/application/libraries/astpp/Form.php 371
+ERROR - 2026-10-26 05:15:20 --> Severity: Notice  --> Undefined offset: 6 /var/www/html/application/libraries/astpp/Form.php 374
+ERROR - 2026-10-26 05:17:04 --> Severity: Notice  --> Undefined index: invoice_conf_form_image /var/www/html/application/libraries/astpp/Form.php 238
+ERROR - 2026-10-26 05:17:04 --> Severity: Notice  --> Undefined index: image /var/www/html/application/libraries/astpp/Form.php 371
+ERROR - 2026-10-26 05:17:04 --> Severity: Notice  --> Undefined offset: 6 /var/www/html/application/libraries/astpp/Form.php 374
+ERROR - 2026-10-26 05:17:04 --> Severity: Notice  --> Undefined index: invoice_conf_form_image /var/www/html/application/libraries/astpp/Form.php 238
+ERROR - 2026-10-26 05:17:04 --> Severity: Notice  --> Undefined index: image /var/www/html/application/libraries/astpp/Form.php 371
+ERROR - 2026-10-26 05:17:04 --> Severity: Notice  --> Undefined offset: 6 /var/www/html/application/libraries/astpp/Form.php 374
+ERROR - 2026-10-26 05:45:35 --> Severity: Notice  --> Trying to access array offset on value of type bool /var/www/html/application/modules/systems/controllers/systems.php 122
+ERROR - 2026-10-26 05:45:35 --> Severity: Notice  --> Undefined index: calling_cards_welcome_file /var/www/html/application/modules/systems/controllers/systems.php 124
+ERROR - 2026-10-26 05:45:35 --> Severity: Notice  --> Trying to access array offset on value of type null /var/www/html/application/modules/systems/controllers/systems.php 124
+ERROR - 2026-10-26 05:45:35 --> Severity: Notice  --> Undefined index: calling_cards_welcome_file /var/www/html/application/modules/systems/controllers/systems.php 125
+ERROR - 2026-10-26 05:45:35 --> Severity: Notice  --> Trying to access array offset on value of type null /var/www/html/application/modules/systems/controllers/systems.php 125
+ERROR - 2026-10-26 05:45:35 --> Severity: Notice  --> Undefined index: calling_cards_welcome_file /var/www/html/application/modules/systems/controllers/systems.php 133
+ERROR - 2026-10-26 05:45:35 --> Severity: Notice  --> Trying to access array offset on value of type null /var/www/html/application/modules/systems/controllers/systems.php 133
+ERROR - 2026-10-26 05:45:35 --> Severity: Notice  --> Undefined index: calling_cards_welcome_file /var/www/html/application/modules/systems/controllers/systems.php 135
+ERROR - 2026-10-26 05:45:35 --> Severity: Notice  --> Trying to access array offset on value of type null /var/www/html/application/modules/systems/controllers/systems.php 135
+ERROR - 2026-10-26 05:45:35 --> Severity: Notice  --> Undefined variable: date /var/www/html/application/modules/systems/controllers/systems.php 136
+ERROR - 2026-10-26 05:45:35 --> Severity: Notice  --> Undefined index: extension /var/www/html/application/modules/systems/controllers/systems.php 136
+ERROR - 2026-10-26 05:45:35 --> Severity: Notice  --> Array to string conversion /var/www/html/application/modules/systems/controllers/systems.php 138
+ERROR - 2026-10-26 05:45:36 --> 404 Page Not Found --> 
+ERROR - 2026-10-26 05:45:36 --> Severity: Warning  --> chmod(): Operation not permitted /var/www/html/system/libraries/Log.php 108
+ERROR - 2026-10-26 05:45:36 --> 404 Page Not Found --> 
+ERROR - 2026-10-26 05:45:36 --> Severity: Warning  --> chmod(): Operation not permitted /var/www/html/system/libraries/Log.php 108
+ERROR - 2026-10-26 05:45:57 --> Severity: Notice  --> Undefined offset: 3 /var/www/html/application/libraries/astpp/Common.php 1930
+ERROR - 2026-10-26 05:45:57 --> Severity: Warning  --> Invalid argument supplied for foreach() /var/www/html/system/database/DB_active_rec.php 84
+ERROR - 2026-10-26 05:45:57 --> Severity: Notice  --> Undefined offset: 3 /var/www/html/application/libraries/astpp/Common.php 1930
+ERROR - 2026-10-26 05:45:57 --> Severity: Warning  --> Invalid argument supplied for foreach() /var/www/html/system/database/DB_active_rec.php 84
+ERROR - 2026-10-26 05:45:57 --> Severity: Notice  --> Undefined offset: 3 /var/www/html/application/libraries/astpp/Common.php 1930
+ERROR - 2026-10-26 05:45:57 --> Severity: Warning  --> Invalid argument supplied for foreach() /var/www/html/system/database/DB_active_rec.php 84
+ERROR - 2026-10-26 05:45:57 --> Severity: Notice  --> Undefined offset: 3 /var/www/html/application/libraries/astpp/Common.php 1930
+ERROR - 2026-10-26 05:45:57 --> Severity: Warning  --> Invalid argument supplied for foreach() /var/www/html/system/database/DB_active_rec.php 84
+ERROR - 2026-10-26 05:45:57 --> Severity: Notice  --> Undefined offset: 3 /var/www/html/application/libraries/astpp/Common.php 1930
+ERROR - 2026-10-26 05:45:57 --> Severity: Warning  --> Invalid argument supplied for foreach() /var/www/html/system/database/DB_active_rec.php 84
+ERROR - 2026-10-26 05:45:57 --> Severity: Notice  --> Undefined offset: 3 /var/www/html/application/libraries/astpp/Common.php 1930
+ERROR - 2026-10-26 05:45:57 --> Severity: Warning  --> Invalid argument supplied for foreach() /var/www/html/system/database/DB_active_rec.php 84
+ERROR - 2026-10-26 05:45:57 --> Severity: Notice  --> Undefined offset: 3 /var/www/html/application/libraries/astpp/Common.php 1930
+ERROR - 2026-10-26 05:45:57 --> Severity: Warning  --> Invalid argument supplied for foreach() /var/www/html/system/database/DB_active_rec.php 84
+ERROR - 2026-10-26 05:45:57 --> Severity: Notice  --> Undefined offset: 3 /var/www/html/application/libraries/astpp/Common.php 1930
+ERROR - 2026-10-26 05:45:57 --> Severity: Warning  --> Invalid argument supplied for foreach() /var/www/html/system/database/DB_active_rec.php 84
+ERROR - 2026-10-26 05:45:57 --> Severity: Notice  --> Undefined offset: 3 /var/www/html/application/libraries/astpp/Common.php 1930
+ERROR - 2026-10-26 05:45:57 --> Severity: Warning  --> Invalid argument supplied for foreach() /var/www/html/system/database/DB_active_rec.php 84
+ERROR - 2026-10-26 05:45:57 --> Severity: Notice  --> Undefined offset: 3 /var/www/html/application/libraries/astpp/Common.php 1930
+ERROR - 2026-10-26 05:45:57 --> Severity: Warning  --> Invalid argument supplied for foreach() /var/www/html/system/database/DB_active_rec.php 84
+ERROR - 2026-10-26 05:50:19 --> Severity: Notice  --> Trying to access array offset on value of type bool /var/www/html/application/modules/systems/controllers/systems.php 122
+ERROR - 2026-10-26 05:50:19 --> Severity: Notice  --> Undefined index: calling_cards_welcome_file /var/www/html/application/modules/systems/controllers/systems.php 124
+ERROR - 2026-10-26 05:50:19 --> Severity: Notice  --> Trying to access array offset on value of type null /var/www/html/application/modules/systems/controllers/systems.php 124
+ERROR - 2026-10-26 05:50:19 --> Severity: Notice  --> Undefined index: calling_cards_welcome_file /var/www/html/application/modules/systems/controllers/systems.php 125
+ERROR - 2026-10-26 05:50:19 --> Severity: Notice  --> Trying to access array offset on value of type null /var/www/html/application/modules/systems/controllers/systems.php 125
+ERROR - 2026-10-26 05:50:19 --> Severity: Notice  --> Undefined index: calling_cards_welcome_file /var/www/html/application/modules/systems/controllers/systems.php 133
+ERROR - 2026-10-26 05:50:19 --> Severity: Notice  --> Trying to access array offset on value of type null /var/www/html/application/modules/systems/controllers/systems.php 133
+ERROR - 2026-10-26 05:50:19 --> Severity: Notice  --> Undefined index: calling_cards_welcome_file /var/www/html/application/modules/systems/controllers/systems.php 135
+ERROR - 2026-10-26 05:50:19 --> Severity: Notice  --> Trying to access array offset on value of type null /var/www/html/application/modules/systems/controllers/systems.php 135
+ERROR - 2026-10-26 05:50:19 --> Severity: Notice  --> Undefined variable: date /var/www/html/application/modules/systems/controllers/systems.php 136
+ERROR - 2026-10-26 05:50:19 --> Severity: Notice  --> Undefined index: extension /var/www/html/application/modules/systems/controllers/systems.php 136
+ERROR - 2026-10-26 05:50:19 --> Severity: Notice  --> Array to string conversion /var/www/html/application/modules/systems/controllers/systems.php 138
+ERROR - 2026-10-26 05:50:20 --> 404 Page Not Found --> 
+ERROR - 2026-10-26 05:50:20 --> Severity: Warning  --> chmod(): Operation not permitted /var/www/html/system/libraries/Log.php 108
+ERROR - 2026-10-26 05:50:20 --> 404 Page Not Found --> 
+ERROR - 2026-10-26 05:50:20 --> Severity: Warning  --> chmod(): Operation not permitted /var/www/html/system/libraries/Log.php 108
+ERROR - 2026-10-26 05:56:39 --> 404 Page Not Found --> 
+ERROR - 2026-10-26 05:56:39 --> Severity: Warning  --> chmod(): Operation not permitted /var/www/html/system/libraries/Log.php 108
+ERROR - 2026-10-26 05:56:39 --> 404 Page Not Found --> 
+ERROR - 2026-10-26 05:56:39 --> Severity: Warning  --> chmod(): Operation not permitted /var/www/html/system/libraries/Log.php 108
+ERROR - 2026-10-26 05:56:50 --> 404 Page Not Found --> 
+ERROR - 2026-10-26 05:56:50 --> Severity: Warning  --> chmod(): Operation not permitted /var/www/html/system/libraries/Log.php 108
+ERROR - 2026-10-26 05:56:50 --> 404 Page Not Found --> 
+ERROR - 2026-10-26 05:56:50 --> Severity: Warning  --> chmod(): Operation not permitted /var/www/html/system/libraries/Log.php 108
+ERROR - 2026-10-26 06:05:06 --> Severity: Notice  --> Undefined index: live_status /var/www/html/application/modules/freeswitch/models/freeswitch_model.php 263
+ERROR - 2026-10-26 06:05:06 --> Severity: Warning  --> fsockopen(): unable to connect to 127.0.0.1:8021 (Connection refused) /var/www/html/application/libraries/Freeswitch_lib.php 28
