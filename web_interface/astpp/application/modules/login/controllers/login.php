@@ -114,8 +114,12 @@ class Login extends MX_Controller
                             'id' => $result['permission_id']
                         ));
                         $permission_result = $permission_result->result_array();
-                        $permission_result = $permission_result[0];
-                        $permission_decode = json_decode($permission_result['permissions'], true);
+                        if (!empty($permission_result)) {
+                            $permission_result = $permission_result[0];
+                            $permission_decode = json_decode($permission_result['permissions'], true);
+                        } else {
+                            $permission_decode = array();
+                        }
                         $permission_decode['login_type'] = $result['type'];
                         $this->session->set_userdata('permissioninfo', $permission_decode);
                         $logintype = $result['type'] == - 1 ? 2 : $result['type'];
@@ -126,9 +130,10 @@ class Login extends MX_Controller
                         $token = $this->token($result['id'], 'e', $result);
                         $this->session->set_userdata('token', $token);
                         // ASTPPCOM-941 Start
+                        $country_name = function_exists('geoip_country_name_by_name') ? ucwords(strtolower(geoip_country_name_by_name($this->input->server('REMOTE_ADDR')))) : '';
                         $login_activity_array=array(
                             "account_id"=>$result['id'],
-                            "country_name"=>ucwords(strtolower(geoip_country_name_by_name($this->input->server('REMOTE_ADDR')))),
+                            "country_name"=>$country_name,
                             "timestamp"=>gmdate("Y-m-d H:i:s"),
                             "user_agent"=> $this->agent->agent_string(),
                             "ip"=>$this->input->server('REMOTE_ADDR')

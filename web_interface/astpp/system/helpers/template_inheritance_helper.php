@@ -381,5 +381,4 @@ That's it for now. If you have questions, ideas or problems, please write me at 
 		} else {
 			return true;
 		}
-	}
-?>  
+	}

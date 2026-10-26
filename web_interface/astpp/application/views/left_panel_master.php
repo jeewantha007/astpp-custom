@@ -138,6 +138,7 @@
 			   $current_menu_url=$uri_arr[0]."/".$uri_arr[1]."/";
 			   $new_menu_info=array();
 				$menus=  unserialize($this->session->userdata('menuinfo'));
+				$menus = is_array($menus) ? $menus : array();
 				foreach($menus as $entity_key=>$entity_menu){
 					foreach($entity_menu as $entity_subkey=>$entity_submenu){
 						 foreach($entity_submenu as $subkey=>$submenus){

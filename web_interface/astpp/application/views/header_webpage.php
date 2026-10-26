@@ -97,6 +97,7 @@
 
     	<?php 
 			$menu_info = unserialize($this->session->userdata("menuinfo"));
+			$menu_info = is_array($menu_info) ? $menu_info : array();
 			$permissioninfo = $this->session->userdata('permissioninfo');
 		$allow_menu_url = $this->config->item('allow_menu_url');
 			foreach($menu_info as $menu_key => $menu_values){				

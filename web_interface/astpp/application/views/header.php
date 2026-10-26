@@ -236,6 +236,9 @@ function PopupCenter(url, title, w, h) {
    <ul class="navbar-nav col-lg-10 col-md-12 p-0 mr-auto d-flex">
     	<?php 
 			$menu_info = unserialize($this->session->userdata("menuinfo"));
+			if (!is_array($menu_info)) {
+				$menu_info = array();
+			}
 			$permissioninfo = $this->session->userdata('permissioninfo');
 		$allow_menu_url = $this->config->item('allow_menu_url');
 		$allow_module=$this->config->item('allow_module');

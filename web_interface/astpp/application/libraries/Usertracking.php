@@ -221,7 +221,7 @@ class Usertracking
   private function check_filters()
   {
     //Get the tracking filters from the config
-    $tracking_filters = $this->configuration['tracking_filter'];
+    $tracking_filters = (is_array($this->configuration) && isset($this->configuration['tracking_filter'])) ? $this->configuration['tracking_filter'] : array();
 
     //If there are filters, process them
     if (is_array($tracking_filters) && count($tracking_filters) > 0 && $tracking_filters[0] !== null)
